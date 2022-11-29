@@ -1,8 +1,6 @@
 package views;
 
-import javafx.collections.ObservableList;
-import javafx.collections.ObservableListBase;
-import javafx.collections.transformation.SortedList;
+import model.TetrisBoard;
 import model.TetrisModel;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -63,7 +61,7 @@ public class LoadView {
         selectBoardButton = new Button("Change board");
         selectBoardButton.setId("ChangeBoard"); // DO NOT MODIFY ID
 
-        //on selection, do somethine
+        //on selection, do something
         selectBoardButton.setOnAction(e -> {
             try {
                 selectBoard(selectBoardLabel, boardsList);
@@ -95,22 +93,20 @@ public class LoadView {
         });
     }
 
-    /**
-     * Populate the listView with all the .SER files in the boards directory
-     *
-     * @param listView ListView to update
-     * @return the index in the listView of Stater.ser
-     */
+
     private void getFiles(ListView<String> listView) {
-        listView.getItems().removeAll();
-        ObservableList<String> new_lst = listView.getItems();
-        File directory = new File("Assignment2/boards");
-        File[] contents = directory.listFiles();
-        if (contents == null) return;
-        for (File object: contents) {
-            if (object.isFile() && object.getName().toLowerCase().contains(".ser")) new_lst.add(object.getName());
+        try {
+            File directoryPath = new File("boards");
+            //List of all files and directories
+            File  files[] = directoryPath.listFiles();
+            for(int i=0; i<files.length; i++) {
+                if(files[i].isFile() && files[i].getName().endsWith(".ser")){
+                    listView.getItems().add(files[i].getName());
+                }
+            }
+        } catch(Exception e){
+            System.out.println(e.getCause());
         }
-        listView.setItems(new_lst);
     }
 
     /**
@@ -120,10 +116,19 @@ public class LoadView {
      * @param boardsList a ListView populated with tetris.boards to load
      */
     private void selectBoard(Label selectBoardLabel, ListView<String> boardsList) throws IOException {
-        String a = boardsList.getSelectionModel().getSelectedItem();
-        if (a == null) return;
-        selectBoardLabel.setText(String.format("Currently playing: %s", a));
-        this.tetrisView.model = loadBoard(String.format("Assignment2/boards/%s", a));
+        //throw new UnsupportedOperationException(); //replace this!
+        String selectedItem = boardsList.getSelectionModel().getSelectedItem();
+        FileInputStream fis = new FileInputStream("boards/"+selectedItem);
+        ObjectInputStream ois = new ObjectInputStream(fis);
+        try {
+            Object obj = ois.readObject();
+            tetrisView.model =(TetrisModel)obj;
+            selectBoardLabel.setText(selectedItem);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
     /**
