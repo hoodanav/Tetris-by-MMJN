@@ -1,7 +1,11 @@
 package model;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Random;
+
+import bombs.Bomb;
+import bombs.BombFactory;
 
 /** Represents a Tetris Model for Tetris.  
  * Based on the Tetris assignment in the Nifty Assignments Database, authored by Nick Parlante
@@ -29,6 +33,10 @@ public class TetrisModel implements Serializable {
     private boolean autoPilotMode; //are we in autopilot mode?
     protected TetrisPilot pilot;
 
+    protected BombFactory bombFactory;
+    public Bomb currBomb;
+    public String statusBomb;
+
     public enum MoveType {
         ROTATE,
         LEFT,
@@ -46,6 +54,9 @@ public class TetrisModel implements Serializable {
         autoPilotMode = false;
         gameOn = false;
         pilot = new AutoPilot();
+        bombFactory = new BombFactory();
+        currBomb = bombFactory.createBomb("Bomb1");
+        statusBomb = "Not Available";
     }
 
 
@@ -58,6 +69,7 @@ public class TetrisModel implements Serializable {
         gameOn = true;
         score = 0;
         count = 0;
+        currBomb = bombFactory.createBomb("Bomb1");
     }
 
     /**
@@ -116,6 +128,8 @@ public class TetrisModel implements Serializable {
     public void addNewPiece() {
         count++;
         score++;
+        this.updateBomb();
+        statusBomb = changeBombStatus();
 
         // commit things the way they are
         board.commit();
@@ -339,6 +353,48 @@ public class TetrisModel implements Serializable {
     public boolean getAutoPilotMode() {
         return this.autoPilotMode;
     }
+
+    /**
+     * Update bomb based on score / level
+     */
+    public void updateBomb(){
+        if (this.score >= 20 && this.score < 30){
+            this.currBomb = bombFactory.createBomb("Bomb2");
+        } else if (this.score >= 30 && this.score < 40){
+            this.currBomb = bombFactory.createBomb("Bomb3");
+        } else if (this.score >= 40){
+            this.currBomb = bombFactory.createBomb("Bomb4");
+        }
+
+    }
+
+    /**
+     * Use the current bomb
+     */
+    public void useBomb(){
+        this.board.clearRowsWithBomb(currBomb);
+    }
+
+    public String changeBombStatus() {
+        ArrayList<Boolean> filled = new ArrayList<>();
+        for (int row = 0; row < currBomb.numLines(); row++){
+            for (int col = 0; col < board.getWidth(); col++){
+                if (board.getGrid(col, row)){ // check to see if there is at least 1 TetrisPiece / filled grid in the row
+                    filled.add(true);
+                } else { filled.add(false); }
+            }
+        }
+
+        for (boolean b : filled){
+            if (!b) {
+                return "Not Available";
+            }
+        }
+        return "Available";
+    }
+
+
+
 }
 
 

@@ -1,6 +1,8 @@
 // TetrisBoard.java
 package model;
 
+import bombs.Bomb;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -334,6 +336,35 @@ public class TetrisBoard implements Serializable{
         }
         for (int x=0; x<width+2; x++) buff.append('-');
         return(buff.toString());
+    }
+
+    /**
+     * Method to use bomb which
+     * clears the bottom rows of the board based on the type of the bomb.
+     *
+     * Bomb1: clear the lowest row
+     * Bomb2: clear the lowest 2 rows
+     * Bomb3: clear the lowest 3 rows
+     * Bomb4: clear the lowest 4 rows
+     *
+     * @param bomb
+     */
+    public int clearRowsWithBomb(Bomb bomb){
+        this.committed = false;
+        this.makeHeightAndWidthArrays();
+        ArrayList<Integer> row_index = new ArrayList<Integer>();
+        int rows_cleared = 0;
+        for (int row = 0; row < bomb.numLines(); row++) {
+            rows_cleared += 1;
+            for (int j = 0; j < this.width; j++) {
+                this.tetrisGrid[j][row] = false;
+            }
+            row_index.add(row);
+        }
+        row_index.sort(Comparator.reverseOrder());
+        for (int r: row_index) shiftDown(r);
+
+        return rows_cleared;
     }
 
 
