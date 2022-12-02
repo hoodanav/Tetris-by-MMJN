@@ -14,7 +14,7 @@ public abstract class TetrisState {
         this.score_formula.put(2,0); //2 lines
         this.score_formula.put(3,0); //3 lines
         this.score_formula.put(4,0); //4 lines
-        this.score_formula.put(5,0); //default
+        this.score_formula.put(0,0); //default
     }
     public abstract void increase_scoring_formula();
 }
