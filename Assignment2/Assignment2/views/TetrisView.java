@@ -33,7 +33,7 @@ public class TetrisView {
     TetrisModel model; //reference to model
     Stage stage;
 
-    Button startButton, stopButton, loadButton, saveButton, newButton, bombButton; //buttons for functions
+    Button startButton, stopButton, loadButton, saveButton, newButton; //buttons for functions
     Label scoreLabel = new Label("");
     Label gameModeLabel = new Label("");
 
@@ -137,13 +137,7 @@ public class TetrisView {
         newButton.setFont(new Font(12));
         newButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
 
-        bombButton = new Button(model.currBomb.getType() + ": " + model.statusBomb);
-        bombButton.setId(model.currBomb.getType());
-        bombButton.setPrefSize(150, 50);
-        bombButton.setFont(new Font(12));
-        bombButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
-
-        HBox controls = new HBox(20, saveButton, loadButton, newButton, startButton, stopButton, bombButton);
+        HBox controls = new HBox(20, saveButton, loadButton, newButton, startButton, stopButton);
         controls.setPadding(new Insets(20, 20, 20, 20));
         controls.setAlignment(Pos.CENTER);
 
@@ -165,15 +159,6 @@ public class TetrisView {
         timeline = new Timeline(new KeyFrame(Duration.seconds(0.25), e -> updateBoard()));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
-
-        bombButton.setOnAction(e -> {
-            model.statusBomb = model.changeBombStatus();
-            if (model.statusBomb == "Available"){
-                this.model.useBomb();
-                this.model.getBoard().commit();
-                borderPane.requestFocus();
-            }
-        });
 
         //configure this such that you start a new game when the user hits the newButton
         //Make sure to return the focus to the borderPane once you're done!
@@ -286,7 +271,6 @@ public class TetrisView {
             paintBoard();
             this.model.modelTick(TetrisModel.MoveType.DOWN);
             updateScore();
-            this.model.updateBomb();
         }
     }
 
