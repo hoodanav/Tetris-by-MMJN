@@ -16,6 +16,8 @@ public class TetrisModel implements Serializable {
     protected TetrisPiece[] pieces; // Pieces to be places on the board
     protected TetrisPiece currentPiece; //Piece we are currently placing
     protected TetrisPiece newPiece; //next piece to be placed
+
+    protected TetrisLevel currentLevel; //Current game level
     protected int count;		 // how many pieces played so far
     protected int score; //the player's score
 
@@ -46,6 +48,7 @@ public class TetrisModel implements Serializable {
         autoPilotMode = false;
         gameOn = false;
         pilot = new AutoPilot();
+        currentLevel = new TetrisLevel();
     }
 
 
@@ -58,6 +61,7 @@ public class TetrisModel implements Serializable {
         gameOn = true;
         score = 0;
         count = 0;
+        currentLevel = new TetrisLevel();
     }
 
     /**
@@ -68,6 +72,8 @@ public class TetrisModel implements Serializable {
     public TetrisBoard getBoard() {
         return this.board;
     }
+
+    public TetrisLevel getCurrentLevel(){return this.currentLevel;}
 
     /**
      * Compute New Position of piece in play based on move type
@@ -116,6 +122,7 @@ public class TetrisModel implements Serializable {
     public void addNewPiece() {
         count++;
         score++;
+        this.setLevel();
 
         // commit things the way they are
         board.commit();
@@ -287,14 +294,16 @@ public class TetrisModel implements Serializable {
         if (failed && verb==MoveType.DOWN){	// if it's out of bounds due to falling
             int cleared = board.clearRows();
             if (cleared > 0) {
+                this.currentLevel.increase_scoring_formula();
                 // scores go up by 5, 10, 20, 40 as more rows are cleared
                 switch (cleared) {
-                    case 1: score += 5;	 break;
-                    case 2: score += 10;  break;
-                    case 3: score += 20;  break;
-                    case 4: score += 40;  break;
-                    default: score += 50;
+                    case 1: score += this.currentLevel.state.score_formula.get(1);	 break;
+                    case 2: score += this.currentLevel.state.score_formula.get(2);  break;
+                    case 3: score += this.currentLevel.state.score_formula.get(3);  break;
+                    case 4: score += this.currentLevel.state.score_formula.get(4);  break;
+                    default: score += this.currentLevel.state.score_formula.get(0);
                 }
+                this.setLevel();
             }
 
             // if the board is too tall, we've lost!
@@ -308,6 +317,20 @@ public class TetrisModel implements Serializable {
             }
         }
 
+    }
+    /**
+     * Set new level based on the total score
+     */
+    public void setLevel(){
+        if(this.score >=50 && this.score <100){
+            this.currentLevel.set_state(new NormalState());
+        }
+        else if(this.score >=100 && this.score < 200){
+            this.currentLevel.set_state(new HardState());
+        }
+        else if(this.score >= 200){
+            this.currentLevel.set_state(new ExpertState());
+        }
     }
 
     /**
