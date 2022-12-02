@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
-/** Represents a Board class for Tetris.  
+/** Represents a Board class for Tetris.
  * Based on the Tetris assignment in the Nifty Assignments Database, authored by Nick Parlante
  */
 public class TetrisBoard implements Serializable{
@@ -61,8 +61,8 @@ public class TetrisBoard implements Serializable{
         for (int x = 0; x < tetrisGrid.length; x++) {
             for (int y = 0; y < tetrisGrid[x].length; y++) {
                 tetrisGrid[x][y] = false;
-                }
             }
+        }
         Arrays.fill(colCounts, 0);
         Arrays.fill(rowCounts, 0);
         committed = true;
@@ -163,8 +163,8 @@ public class TetrisBoard implements Serializable{
     /**
      * Attempts to add the body of a piece to the board. Copies the piece blocks into the board grid.
      * Returns ADD_OK for a regular placement, or ADD_ROW_FILLED
-     * for a regular placement that causes at least one row to be filled. 
-     * 
+     * for a regular placement that causes at least one row to be filled.
+     *
      * Error cases:
      * A placement may fail in two ways. First, if part of the piece may fall out
      * of bounds of the board, ADD_OUT_BOUNDS is returned.
@@ -172,11 +172,11 @@ public class TetrisBoard implements Serializable{
      * in which case ADD_BAD is returned.
      * In both error cases, the board may be left in an invalid
      * state. The client can use undo(), to recover the valid, pre-place state.
-     * 
+     *
      * @param piece piece to place
      * @param x placement position, x
      * @param y placement position, y
-     * 
+     *
      * @return static int that defines result of placement
      */
     public int placePiece(TetrisPiece piece, int x, int y) {
@@ -319,7 +319,7 @@ public class TetrisBoard implements Serializable{
 
     /**
      * Print the board
-     * 
+     *
      * @return a string representation of the board (useful for debugging)
      */
     public String toString() {
