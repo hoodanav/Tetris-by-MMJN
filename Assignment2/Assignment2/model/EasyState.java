@@ -16,6 +16,6 @@ public class EasyState extends TetrisState {
 
     @Override
     public void increase_block_falling_speed() {
-        this.commandIncrease.execute();
+        this.speedModifier.changeTime();
     }
 }

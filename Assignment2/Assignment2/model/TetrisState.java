@@ -7,8 +7,9 @@ public abstract class TetrisState {
      * An abstract class representing a TetrisState.
      */
     public HashMap<Integer,Integer> score_formula; //scoring formula based on clearing how many lines.
-    public TetrisTimer timer; //timer object.
     public TetrisCommandIncrease commandIncrease; //command object to increase block falling speed.
+    public TetrisTimer timer; // timer object.
+    public TetrisSpeedModifier speedModifier; // speed modifier.
 
     public TetrisState(){
         this.score_formula = new HashMap<Integer,Integer>();
@@ -19,6 +20,7 @@ public abstract class TetrisState {
         this.score_formula.put(0,0); //default
         this.timer = new TetrisTimer();
         this.commandIncrease = new TetrisCommandIncrease(timer);
+        this.speedModifier = new TetrisSpeedModifier(commandIncrease);
     }
 
     /**
