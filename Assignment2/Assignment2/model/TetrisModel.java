@@ -337,7 +337,6 @@ public class TetrisModel implements Serializable {
         else if(this.score >= 200){
             this.currentLevel.set_state(new ExpertState());
             this.currentLevel.increase_block_falling_speed();
-            System.out.print("expert");
         }
     }
 
