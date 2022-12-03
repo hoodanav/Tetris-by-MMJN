@@ -25,9 +25,17 @@ public class TetrisTimer {
     }
 
     /**
+     * Set the timer percent.
+     */
+    public void setPercent(double percent) {
+        this.percent = percent;
+    }
+
+    /**
      * Increase time by 10%.
      */
     public void increaseTime() {
+        if (this.percent >= 1.0) return;
         this.percent += 0.1;
         this.time = timeDefault * this.percent;
     }
@@ -36,6 +44,7 @@ public class TetrisTimer {
      * Decrease time by 10%.
      */
     public void decreaseTime() {
+        if (this.percent <= 0) return;
         this.percent -= 0.1;
         this.time = timeDefault * this.percent;
     }
