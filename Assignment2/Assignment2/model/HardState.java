@@ -12,4 +12,7 @@ public class HardState extends TetrisState {
         this.score_formula.put(4,55); //4 lines
         this.score_formula.put(0,65); //default
     }
+    public void increase_block_falling_speed() {
+        this.commandIncrease.execute();
+    }
 }

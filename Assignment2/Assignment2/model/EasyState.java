@@ -13,4 +13,9 @@ public class EasyState extends TetrisState {
         this.score_formula.put(4,40); //4 lines
         this.score_formula.put(0,50); //default
     }
+
+    @Override
+    public void increase_block_falling_speed() {
+        this.commandIncrease.execute();
+    }
 }
