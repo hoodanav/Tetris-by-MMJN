@@ -205,11 +205,11 @@ public class TetrisView {
         //configure this such that you adjust the speed of the timeline to a value that
         //ranges between 0 and 3 times the default rate per model tick.  Make sure to return the
         //focus to the borderPane once you're done!
-        slider.setOnMouseReleased(e -> {
-            double value = slider.getValue();
-            timeline.setRate(3 * value/100);
-            borderPane.requestFocus();
-        });
+//        slider.setOnMouseReleased(e -> {
+//            double value = slider.getValue();
+//            timeline.setRate(3 * value/100);
+//            borderPane.requestFocus();
+//        });
 
         //configure this such that you can use controls to rotate and place pieces as you like!!
         //You'll want to respond to tie key presses to these moves:

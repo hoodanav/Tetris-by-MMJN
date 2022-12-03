@@ -7,7 +7,7 @@ public class TetrisTimer {
 
     private double time;
     private double percent;
-    private final double timeDefault = 10;
+    private final double timeDefault = 3;
 
     /**
      * Constructor for Tetris Timer
@@ -18,9 +18,24 @@ public class TetrisTimer {
     }
 
     /**
+     * Set the timer time.
+     */
+    public void setTime(double time) {
+        this.time = time;
+    }
+
+    /**
+     * Set the timer percent.
+     */
+    public void setPercent(double percent) {
+        this.percent = percent;
+    }
+
+    /**
      * Increase time by 10%.
      */
     public void increaseTime() {
+        if (this.percent >= 1.0) return;
         this.percent += 0.1;
         this.time = timeDefault * this.percent;
     }
@@ -29,6 +44,7 @@ public class TetrisTimer {
      * Decrease time by 10%.
      */
     public void decreaseTime() {
+        if (this.percent <= 0) return;
         this.percent -= 0.1;
         this.time = timeDefault * this.percent;
     }
