@@ -8,7 +8,7 @@ public abstract class TetrisState {
      */
     public HashMap<Integer,Integer> score_formula; //scoring formula based on clearing how many lines.
     public TetrisCommandIncrease commandIncrease; //command object to increase block falling speed.
-    public TetrisTimer timer; // timer object.
+    public static TetrisTimer timer; // timer object.
     public TetrisSpeedModifier speedModifier; // speed modifier.
 
     public TetrisState(){

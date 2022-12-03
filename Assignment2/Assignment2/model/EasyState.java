@@ -1,9 +1,6 @@
 package model;
 
 public class EasyState extends TetrisState {
-    /**
-     * A subclass of TetrisState representing EasyState.
-     */
 
     @Override
     public void increase_scoring_formula() {

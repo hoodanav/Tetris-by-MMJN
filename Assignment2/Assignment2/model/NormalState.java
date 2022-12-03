@@ -13,7 +13,6 @@ public class NormalState extends TetrisState {
         this.score_formula.put(0,55); //default
     }
     public void increase_block_falling_speed() {
-        this.timer.setPercent(1.0);
         this.speedModifier.changeTime();
     }
 }
