@@ -13,6 +13,7 @@ public class ExpertState extends TetrisState {
         this.score_formula.put(0,85); //default
     }
     public void increase_block_falling_speed() {
+        this.timer.setPercent(2.5);
         this.speedModifier.changeTime();
     }
 }

@@ -16,7 +16,6 @@ public class TetrisTimer {
         this.percent = 0.5;
         this.time = timeDefault * percent;
     }
-
     /**
      * Set the timer time.
      */
