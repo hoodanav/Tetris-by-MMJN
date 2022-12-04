@@ -326,15 +326,15 @@ public class TetrisModel implements Serializable {
      * Set new level based on the total score
      */
     public void setLevel(){
-        if(this.score >=50 && this.score <100){
+        if(this.score >=50 && this.score <100 && !(this.currentLevel.state instanceof NormalState)){
             this.currentLevel.set_state(new NormalState());
             this.currentLevel.increase_block_falling_speed();
         }
-        else if(this.score >=100 && this.score < 200){
+        else if(this.score >=100 && this.score < 200 && !(this.currentLevel.state instanceof HardState)){
             this.currentLevel.set_state(new HardState());
             this.currentLevel.increase_block_falling_speed();
         }
-        else if(this.score >= 200){
+        else if(this.score >= 200 && !(this.currentLevel.state instanceof ExpertState)){
             this.currentLevel.set_state(new ExpertState());
             this.currentLevel.increase_block_falling_speed();
         }
