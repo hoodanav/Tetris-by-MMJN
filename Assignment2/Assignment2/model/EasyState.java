@@ -1,9 +1,6 @@
 package model;
 
 public class EasyState extends TetrisState {
-    /**
-     * A subclass of TetrisState representing EasyState.
-     */
 
     @Override
     public void increase_scoring_formula() {
@@ -12,5 +9,10 @@ public class EasyState extends TetrisState {
         this.score_formula.put(3,20); //3 lines
         this.score_formula.put(4,40); //4 lines
         this.score_formula.put(0,50); //default
+    }
+
+    @Override
+    public void increase_block_falling_speed() {
+        this.speedModifier.changeTime();
     }
 }

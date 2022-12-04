@@ -12,4 +12,7 @@ public class NormalState extends TetrisState {
         this.score_formula.put(4,45); //4 lines
         this.score_formula.put(0,55); //default
     }
+    public void increase_block_falling_speed() {
+        this.speedModifier.changeTime();
+    }
 }

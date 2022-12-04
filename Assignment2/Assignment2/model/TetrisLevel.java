@@ -12,4 +12,7 @@ public class TetrisLevel {
     public void increase_scoring_formula(){
         this.state.increase_scoring_formula();
     }
+    public void increase_block_falling_speed(){
+        this.state.increase_block_falling_speed();
+    }
 }
