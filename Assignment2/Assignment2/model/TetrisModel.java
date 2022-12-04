@@ -122,9 +122,7 @@ public class TetrisModel implements Serializable {
     public void addNewPiece() {
         count++;
         score++;
-        if(!(currentLevel.state instanceof ExpertState)){
-            this.setLevel();
-        }
+        this.setLevel();
 
         // commit things the way they are
         board.commit();
@@ -305,9 +303,7 @@ public class TetrisModel implements Serializable {
                     case 4: score += this.currentLevel.state.score_formula.get(4);  break;
                     default: score += this.currentLevel.state.score_formula.get(0);
                 }
-                if(!(currentLevel.state instanceof ExpertState)){
-                    this.setLevel();
-                }
+                this.setLevel();
             }
 
             // if the board is too tall, we've lost!
