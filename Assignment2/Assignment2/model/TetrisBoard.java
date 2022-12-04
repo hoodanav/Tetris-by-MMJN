@@ -5,6 +5,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import bombs.Bomb;
 
 /** Represents a Board class for Tetris.
  * Based on the Tetris assignment in the Nifty Assignments Database, authored by Nick Parlante
@@ -228,6 +229,7 @@ public class TetrisBoard implements Serializable{
                 rows_cleared += 1;
                 for (int j = 0; j < this.width; j++) {
                     this.tetrisGrid[j][row] = false;
+                    this.backupGrid[j][row] = false;
                 }
                 row_index.add(row);
             }
@@ -236,6 +238,7 @@ public class TetrisBoard implements Serializable{
         row_index.sort(Comparator.reverseOrder());
         for (int r: row_index) shiftDown(r);
 
+        this.makeHeightAndWidthArrays();
         return rows_cleared;
     }
 
@@ -249,10 +252,12 @@ public class TetrisBoard implements Serializable{
         for (int j = row; j + 1 < this.height; j++) {
             for (int i = 0; i < this.width; i++) {
                 this.tetrisGrid[i][j] = this.tetrisGrid[i][j + 1];
+                this.backupGrid[i][j] = this.backupGrid[i][j+1];
             }
         }
         for (int w = 0; w < this.width; w++) {
             this.tetrisGrid[w][this.height - 1] = false;
+            this.backupGrid[w][this.height - 1] = false;
         }
     }
 
@@ -336,7 +341,37 @@ public class TetrisBoard implements Serializable{
         return(buff.toString());
     }
 
+    /**
+     * Method to use bomb which
+     * clears the bottom rows of the board based on the type of the bomb.
+     *
+     * Bomb1: clear the lowest row
+     * Bomb2: clear the lowest 2 rows
+     * Bomb3: clear the lowest 3 rows
+     * Bomb4: clear the lowest 4 rows
+     *
+     * @param bomb bomb.
+     */
+    public int clearRowsWithBomb(Bomb bomb){
+        this.committed = false;
+        this.makeHeightAndWidthArrays();
+        ArrayList<Integer> row_index = new ArrayList<Integer>();
+        int rows_cleared = 0;
+        for (int row = 0; row < bomb.numLines(); row++) {
+            rows_cleared += 1;
+            for (int j = 0; j < this.width; j++) {
+                this.tetrisGrid[j][row] = false;
+                this.backupGrid[j][row] = false;
+            }
+            row_index.add(row);
 
+        }
+        row_index.sort(Comparator.reverseOrder());
+        for (int r: row_index) shiftDown(r);
+
+        this.makeHeightAndWidthArrays();
+        return rows_cleared;
+    }
 }
 
 
