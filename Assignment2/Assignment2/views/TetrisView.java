@@ -32,7 +32,7 @@ public class TetrisView {
     TetrisModel model; //reference to model
     Stage stage;
 
-    Button startButton, stopButton, loadButton, saveButton, newButton; //buttons for functions
+    Button startButton, stopButton, loadButton, saveButton, newButton, bombButton; //buttons for functions
     Label scoreLabel = new Label("");
     Label gameModeLabel = new Label("");
 
@@ -112,6 +112,7 @@ public class TetrisView {
         levelLabel.setFont(new Font(20));
         levelLabel.setStyle("-fx-text-fill: #e8e6e3");
 
+
         //add buttons
         startButton = new Button("Start");
         startButton.setId("Start");
@@ -143,7 +144,13 @@ public class TetrisView {
         newButton.setFont(new Font(12));
         newButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
 
-        HBox controls = new HBox(20, saveButton, loadButton, newButton, startButton, stopButton);
+        bombButton = new Button(model.bomb.getType() + ": " + model.bombStatus);
+        bombButton.setId(model.bomb.getType());
+        bombButton.setPrefSize(150, 50);
+        bombButton.setFont(new Font(12));
+        bombButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
+
+        HBox controls = new HBox(20, saveButton, loadButton, newButton, startButton, stopButton, bombButton);
         controls.setPadding(new Insets(20, 20, 20, 20));
         controls.setAlignment(Pos.CENTER);
 
@@ -165,6 +172,22 @@ public class TetrisView {
         timeline = new Timeline(new KeyFrame(Duration.seconds(0.25), e -> updateBoard()));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
+
+        bombButton.setOnAction(e -> {
+            if (model.bombStatus.equals("Available")){
+                boolean filled = true;
+                for (int row = 0; row < model.bomb.numLines(); row++){
+                    if (model.getBoard().getRowWidth(row) == 0){
+                        filled = false; break;
+                    }
+                }
+                if (filled){ // there must be at least one grid filled in the lowest row(s) to use the bomb
+                    this.model.useBomb();
+                    this.model.bombStatus = "N/A"; // if the bomb is used, it becomes unavailable in that level
+                    borderPane.requestFocus();
+                }
+            }
+        });
 
         //configure this such that you start a new game when the user hits the newButton
         //Make sure to return the focus to the borderPane once you're done!
@@ -278,6 +301,7 @@ public class TetrisView {
             this.model.modelTick(TetrisModel.MoveType.DOWN);
             updateScore();
             updateLevel();
+            updateBombUI();
         }
     }
 
@@ -289,6 +313,7 @@ public class TetrisView {
             scoreLabel.setText("Score is: " + model.getScore() + "\nPieces placed:" + model.getCount());
         }
     }
+
     /**
      * Update level on UI
      */
@@ -307,6 +332,14 @@ public class TetrisView {
             levelLabel.setText("Level is: " + level_string_value);
         }
     }
+
+    /**
+     * Update bomb on UI
+     */
+    private void updateBombUI(){
+        bombButton.setText(model.bomb.getType() + ": "+ model.bombStatus);
+    }
+
 
     /**
      * Methods to calibrate sizes of pixels relative to board size
