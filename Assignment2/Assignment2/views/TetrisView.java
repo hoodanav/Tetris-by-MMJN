@@ -20,6 +20,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import model.TetrisPiece;
+import sound_effects.SimpleAudio;
+
+import java.util.Observable;
 
 
 /**
@@ -27,12 +31,15 @@ import javafx.util.Duration;
  *
  * Based on the Tetris assignment in the Nifty Assignments Database, authored by Nick Parlante
  */
-public class TetrisView {
+public class TetrisView extends Observable {
 
+    public static final String LEFT_MOVE = "LEFT_MOVE";
+    public static final String RIGHT_MOVE = "RIGHT_MOVE";
+    public static final String ROTATED = "ROTATED";
     TetrisModel model; //reference to model
     Stage stage;
 
-    Button startButton, stopButton, loadButton, saveButton, newButton, bombButton; //buttons for functions
+    Button startButton, stopButton, loadButton, saveButton, newButton, bombButton, enableButton; //buttons for functions
     Label scoreLabel = new Label("");
     Label gameModeLabel = new Label("");
 
@@ -44,6 +51,8 @@ public class TetrisView {
 
     Boolean paused;
     Timeline timeline;
+
+    private static boolean voiceEnabled;
 
     int pieceWidth = 20; //width of block on display
     private double width; //height and width of canvas
@@ -60,6 +69,7 @@ public class TetrisView {
         this.model = model;
         this.stage = stage;
         initUI();
+        addObserver(new SimpleAudio());
     }
 
     /**
@@ -150,7 +160,14 @@ public class TetrisView {
         bombButton.setFont(new Font(12));
         bombButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
 
-        HBox controls = new HBox(20, saveButton, loadButton, newButton, startButton, stopButton, bombButton);
+        //HBox controls = new HBox(20, saveButton, loadButton, newButton, startButton, stopButton, bombButton);
+        enableButton = new Button("Voice Aid");
+        enableButton.setId("Voice Aid");
+        enableButton.setPrefSize(150, 50);
+        enableButton.setFont(new Font(12));
+        enableButton.setStyle("-fx-background-color: #F28583; -fx-text-fill: white;");
+
+        HBox controls = new HBox(20, saveButton, loadButton, newButton, startButton, stopButton,bombButton, enableButton);
         controls.setPadding(new Insets(20, 20, 20, 20));
         controls.setAlignment(Pos.CENTER);
 
@@ -225,6 +242,13 @@ public class TetrisView {
             borderPane.requestFocus();
         });
 
+        //configure this such that the load view pops up when the loadButton is pressed.
+        //Make sure to return the focus to the borderPane once you're done!
+        enableButton.setOnAction(e -> {
+            this.setVoiceEnabled();
+            borderPane.requestFocus();
+        });
+
         //configure this such that you adjust the speed of the timeline to a value that
         //ranges between 0 and 3 times the default rate per model tick.  Make sure to return the
         //focus to the borderPane once you're done!
@@ -247,15 +271,21 @@ public class TetrisView {
                 int code = k.getCode().getCode();
                 switch (code) {
                     case 87 -> { //up
+                        setChanged();
+                        notifyObservers(ROTATED);
                         model.modelTick(TetrisModel.MoveType.ROTATE);
                     }
                     case 83 -> { //down
                         model.modelTick(TetrisModel.MoveType.DROP);
                     }
                     case 65 -> { //left
+                        setChanged();
+                        notifyObservers(LEFT_MOVE);
                         model.modelTick(TetrisModel.MoveType.LEFT);
                     }
                     case 68 -> { //right
+                        setChanged();
+                        notifyObservers(RIGHT_MOVE);
                         model.modelTick(TetrisModel.MoveType.RIGHT);
                     }
                     default -> {
@@ -406,6 +436,19 @@ public class TetrisView {
      */
     private void createLoadView(){
         LoadView loadView = new LoadView(this);
+    }
+
+    private void setVoiceEnabled() {
+        if (voiceEnabled) {
+            voiceEnabled = false;
+        }
+        else {
+            voiceEnabled = true;
+        }
+    }
+
+    public static boolean getVoiceEnabled() {
+        return voiceEnabled;
     }
 
 

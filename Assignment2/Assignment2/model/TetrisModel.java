@@ -1,5 +1,9 @@
 package model;
 
+import sound_effects.SimpleAudio;
+
+import java.util.Observable;
+
 import java.io.*;
 import java.util.Random;
 import bombs.Bomb;
@@ -8,11 +12,14 @@ import bombs.BombFactory;
 /** Represents a Tetris Model for Tetris.
  * Based on the Tetris assignment in the Nifty Assignments Database, authored by Nick Parlante
  */
-public class TetrisModel implements Serializable {
+public class TetrisModel extends Observable implements Serializable {
 
     public static final int WIDTH = 10; //size of the board in blocks
     public static final int HEIGHT = 20; //height of the board in blocks
     public static final int BUFFERZONE = 4; //space at the top
+    public static final String PIECE_PLACED = "PIECE_PLACED";
+    public static final String GAME_STARTED = "GAME_STARTED";
+    public static final String ROW_FILLED = "ROW_FILLED";
 
     protected TetrisBoard board;  // Board data structure
     protected TetrisPiece[] pieces; // Pieces to be places on the board
@@ -56,6 +63,7 @@ public class TetrisModel implements Serializable {
         currentLevel = new TetrisLevel();
         BombFactory bf = new BombFactory();
         bomb = bf.createBomb("Bomb1");
+        addObserver(new SimpleAudio());
     }
 
 
@@ -63,6 +71,8 @@ public class TetrisModel implements Serializable {
      * Start new game
      */
     public void startGame() { //start game
+        //setChanged();
+        //notifyObservers("GAME_STARTED");
         random = new Random();
         addNewPiece();
         gameOn = true;
@@ -178,7 +188,17 @@ public class TetrisModel implements Serializable {
             this.currentPiece = piece;
             this.currentX = x;
             this.currentY = y;
+            if (result == TetrisBoard.ADD_ROW_FILLED) {
+                setChanged();
+                notifyObservers(ROW_FILLED);
+            }
+
         } else {
+            // check for piece is resting at y = 0 and/or another piece.
+            if(result != TetrisBoard.ADD_OUT_BOUNDS || (result == TetrisBoard.ADD_OUT_BOUNDS && y < 0)) {
+                setChanged();
+                notifyObservers(PIECE_PLACED);
+            }
             board.undo();
         }
 

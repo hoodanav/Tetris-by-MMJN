@@ -5,12 +5,17 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Observable;
+import sound_effects.SimpleAudio;
 import bombs.Bomb;
 
-/** Represents a Board class for Tetris.
+/** Represents a Board class for Tetris.  
  * Based on the Tetris assignment in the Nifty Assignments Database, authored by Nick Parlante
  */
-public class TetrisBoard implements Serializable{
+public class TetrisBoard extends Observable implements Serializable{
+    public static final String PIECE_PLACED = "PIECE_PLACED";
+    public static final String PIECE_FALLING = "PIECE_FALLING";
+    public static final String BOMB_USED = "BOMB_USED";
     private int width; //board height and width
     private int height;
     protected boolean[][] tetrisGrid; //board grid
@@ -53,6 +58,7 @@ public class TetrisBoard implements Serializable{
         backupGrid = new boolean[width][height];
         backupColCounts = new int[width];
         backupRowCounts = new int[height];
+        addObserver(new SimpleAudio());
     }
 
     /**
@@ -259,6 +265,8 @@ public class TetrisBoard implements Serializable{
             this.tetrisGrid[w][this.height - 1] = false;
             this.backupGrid[w][this.height - 1] = false;
         }
+       // setChanged();
+       // notifyObservers(ROW_FILLED);
     }
 
 
@@ -367,7 +375,11 @@ public class TetrisBoard implements Serializable{
 
         }
         row_index.sort(Comparator.reverseOrder());
-        for (int r: row_index) shiftDown(r);
+        for (int r: row_index) {
+            setChanged();
+            notifyObservers(BOMB_USED);
+            shiftDown(r);
+        }
 
         this.makeHeightAndWidthArrays();
         return rows_cleared;
