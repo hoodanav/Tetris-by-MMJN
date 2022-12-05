@@ -2,6 +2,7 @@ import model.TetrisPiece;
 import model.TetrisBoard;
 
 import org.junit.jupiter.api.Test;
+import sound_effects.SimpleAudio;
 
 import java.util.Arrays;
 
@@ -171,5 +172,12 @@ public class TetrisTests {
 
         int rcleared = board.clearRows();
         assertEquals(2, rcleared);
+    }
+
+    @Test
+    void testLineFillSound() {
+        SimpleAudio as = new SimpleAudio();
+        as.play("Assignment2//sounds//right.wav");
+        //as.playSound1("line_filled.wav");
     }
 }

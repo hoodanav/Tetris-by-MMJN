@@ -10,6 +10,7 @@ import javafx.stage.Stage;
  * Based on the Tetris assignment in the Nifty Assignments Database, authored by Nick Parlante
  */
 public class TetrisApp extends Application {
+    //public static final String GAME_STARTED = "GAME_STARTED";
     TetrisModel model;
     TetrisView view;
 
@@ -32,6 +33,7 @@ public class TetrisApp extends Application {
         this.model = new TetrisModel(); // create a model
         this.view = new TetrisView(model, primaryStage); //tie the model to the view
         this.model.startGame(); //begin
+        //model.notifyObservers(GAME_STARTED);
     }
 
 }

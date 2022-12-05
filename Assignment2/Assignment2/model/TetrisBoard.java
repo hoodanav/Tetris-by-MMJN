@@ -5,11 +5,16 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Observable;
+import sound_effects.SimpleAudio;
 
 /** Represents a Board class for Tetris.  
  * Based on the Tetris assignment in the Nifty Assignments Database, authored by Nick Parlante
  */
-public class TetrisBoard implements Serializable{
+public class TetrisBoard extends Observable implements Serializable{
+    public static final String ROW_FILLED = "ROW_FILLED";
+    public static final String PIECE_PLACED = "PIECE_PLACED";
+    public static final String PIECE_FALLING = "PIECE_FALLING";
     private int width; //board height and width
     private int height;
     protected boolean[][] tetrisGrid; //board grid
@@ -52,6 +57,7 @@ public class TetrisBoard implements Serializable{
         backupGrid = new boolean[width][height];
         backupColCounts = new int[width];
         backupRowCounts = new int[height];
+        addObserver(new SimpleAudio());
     }
 
     /**
@@ -196,6 +202,8 @@ public class TetrisBoard implements Serializable{
                 return ADD_ROW_FILLED;
             }
         }
+        setChanged();
+        notifyObservers(PIECE_FALLING);
         return ADD_OK;
     }
 
@@ -254,6 +262,8 @@ public class TetrisBoard implements Serializable{
         for (int w = 0; w < this.width; w++) {
             this.tetrisGrid[w][this.height - 1] = false;
         }
+        setChanged();
+        notifyObservers(ROW_FILLED);
     }
 
 
