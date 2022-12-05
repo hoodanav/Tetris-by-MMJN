@@ -62,21 +62,23 @@ public class TimeView {
         question.setFont(new Font(16));
 
         increase.setId("increase");
-        increase.setStyle("-fx-background-color: #FFADCD; -fx-text-fill: black;");
+        increase.setStyle("-fx-background-color: #a8577e; -fx-text-fill: white;");
         increase.setPrefSize(200, 50);
         increase.setFont(new Font(16));
         increase.setOnAction(e -> {
             adjustUp.changeTime();
             this.time.setText("Current percent: " + df.format(TetrisState.timer.currPercent() * 100) + "%");
+            tetrisView.timeline.setRate(TetrisState.timer.currTime());
         });
 
         decrease.setId("decrease");
-        decrease.setStyle("-fx-background-color: #33C5FF; -fx-text-fill: black;");
+        decrease.setStyle("-fx-background-color: #3b429f; -fx-text-fill: white;");
         decrease.setPrefSize(200, 50);
         decrease.setFont(new Font(16));
         decrease.setOnAction(e -> {
             adjustDown.changeTime();
             this.time.setText("Current percent: " + df.format(TetrisState.timer.currPercent() * 100) + "%");
+            tetrisView.timeline.setRate(TetrisState.timer.currTime());
         });
 
         VBox titleBox = new VBox(10, question);
