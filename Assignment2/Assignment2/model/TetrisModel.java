@@ -6,8 +6,10 @@ import java.util.Observable;
 
 import java.io.*;
 import java.util.Random;
+import bombs.Bomb;
+import bombs.BombFactory;
 
-/** Represents a Tetris Model for Tetris.  
+/** Represents a Tetris Model for Tetris.
  * Based on the Tetris assignment in the Nifty Assignments Database, authored by Nick Parlante
  */
 public class TetrisModel extends Observable implements Serializable {
@@ -17,11 +19,14 @@ public class TetrisModel extends Observable implements Serializable {
     public static final int BUFFERZONE = 4; //space at the top
     public static final String PIECE_PLACED = "PIECE_PLACED";
     public static final String GAME_STARTED = "GAME_STARTED";
+    public static final String ROW_FILLED = "ROW_FILLED";
 
     protected TetrisBoard board;  // Board data structure
     protected TetrisPiece[] pieces; // Pieces to be places on the board
     protected TetrisPiece currentPiece; //Piece we are currently placing
     protected TetrisPiece newPiece; //next piece to be placed
+
+    protected TetrisLevel currentLevel; //Current game level
     protected int count;		 // how many pieces played so far
     protected int score; //the player's score
 
@@ -34,6 +39,9 @@ public class TetrisModel extends Observable implements Serializable {
 
     private boolean autoPilotMode; //are we in autopilot mode?
     protected TetrisPilot pilot;
+
+    public Bomb bomb;
+    public String bombStatus;
 
     public enum MoveType {
         ROTATE,
@@ -52,6 +60,9 @@ public class TetrisModel extends Observable implements Serializable {
         autoPilotMode = false;
         gameOn = false;
         pilot = new AutoPilot();
+        currentLevel = new TetrisLevel();
+        BombFactory bf = new BombFactory();
+        bomb = bf.createBomb("Bomb1");
         addObserver(new SimpleAudio());
     }
 
@@ -67,6 +78,10 @@ public class TetrisModel extends Observable implements Serializable {
         gameOn = true;
         score = 0;
         count = 0;
+        currentLevel = new TetrisLevel();
+        BombFactory bf = new BombFactory();
+        bomb = bf.createBomb("Bomb1");
+        bombStatus = "Available";
     }
 
     /**
@@ -78,9 +93,11 @@ public class TetrisModel extends Observable implements Serializable {
         return this.board;
     }
 
+    public TetrisLevel getCurrentLevel(){return this.currentLevel;}
+
     /**
      * Compute New Position of piece in play based on move type
-     * 
+     *
      * @param verb type of move to account for
      */
     public void computeNewPosition(MoveType verb) {
@@ -120,11 +137,12 @@ public class TetrisModel extends Observable implements Serializable {
     }
 
     /**
-     * Put new piece in play on board 
+     * Put new piece in play on board
      */
     public void addNewPiece() {
         count++;
         score++;
+        this.setLevel();
 
         // commit things the way they are
         board.commit();
@@ -145,7 +163,7 @@ public class TetrisModel extends Observable implements Serializable {
     }
 
     /**
-     * Pick next piece to put in play on board 
+     * Pick next piece to put in play on board
      */
     private TetrisPiece pickNextPiece() {
         int pieceNum;
@@ -156,11 +174,11 @@ public class TetrisModel extends Observable implements Serializable {
 
     /**
      * Attempt to set the piece at a given board position
-     * 
+     *
      * @param piece piece to place
      * @param x placement position, x
      * @param y placement position, y
-     * 
+     *
      * @return integer defining if placement is OK or not (see Board.java)
      */
     public int setCurrent(TetrisPiece piece, int x, int y) {
@@ -170,6 +188,10 @@ public class TetrisModel extends Observable implements Serializable {
             this.currentPiece = piece;
             this.currentX = x;
             this.currentY = y;
+            if (result == TetrisBoard.ADD_ROW_FILLED) {
+                setChanged();
+                notifyObservers(ROW_FILLED);
+            }
 
         } else {
             // check for piece is resting at y = 0 and/or another piece.
@@ -199,8 +221,8 @@ public class TetrisModel extends Observable implements Serializable {
 
     /**
      * Get width
-     * 
-     * @return width 
+     *
+     * @return width
      */
     public double getWidth() {
         return WIDTH;
@@ -208,8 +230,8 @@ public class TetrisModel extends Observable implements Serializable {
 
     /**
      * Get width
-     * 
-     * @return height (with buffer at top accounted for) 
+     *
+     * @return height (with buffer at top accounted for)
      */
     public double getHeight() {
         return HEIGHT + BUFFERZONE;
@@ -217,7 +239,7 @@ public class TetrisModel extends Observable implements Serializable {
 
     /**
      * Get width
-     * 
+     *
      * @return score of game
      */
     public int getScore() {
@@ -226,7 +248,7 @@ public class TetrisModel extends Observable implements Serializable {
 
     /**
      * Get width
-     * 
+     *
      * @return number of pieces placed
      */
     public int getCount() {
@@ -273,12 +295,12 @@ public class TetrisModel extends Observable implements Serializable {
     }
 
     /**
-     * Execute a given move.  This will compute the new position of the active piece, 
+     * Execute a given move.  This will compute the new position of the active piece,
      * set the piece to this location if possible.  If lines are completed
      * as a result of the move, the lines will be cleared from the board,
      * and the board will be updated.  Scores will be added to the player's
      * total based on the number of rows cleared.
-     * 
+     *
      * @param verb the type of move to execute
      */
     private void executeMove(MoveType verb) {
@@ -302,14 +324,16 @@ public class TetrisModel extends Observable implements Serializable {
         if (failed && verb==MoveType.DOWN){	// if it's out of bounds due to falling
             int cleared = board.clearRows();
             if (cleared > 0) {
+                this.currentLevel.increase_scoring_formula();
                 // scores go up by 5, 10, 20, 40 as more rows are cleared
                 switch (cleared) {
-                    case 1: score += 5;	 break;
-                    case 2: score += 10;  break;
-                    case 3: score += 20;  break;
-                    case 4: score += 40;  break;
-                    default: score += 50;
+                    case 1: score += this.currentLevel.state.score_formula.get(1);	 break;
+                    case 2: score += this.currentLevel.state.score_formula.get(2);  break;
+                    case 3: score += this.currentLevel.state.score_formula.get(3);  break;
+                    case 4: score += this.currentLevel.state.score_formula.get(4);  break;
+                    default: score += this.currentLevel.state.score_formula.get(0);
                 }
+                this.setLevel();
             }
 
             // if the board is too tall, we've lost!
@@ -324,6 +348,30 @@ public class TetrisModel extends Observable implements Serializable {
         }
 
     }
+    /**
+     * Set new level based on the total score
+     */
+    public void setLevel(){
+        BombFactory bf = new BombFactory();
+        if(this.score >=50 && this.score <100 && !(this.currentLevel.state instanceof NormalState)){
+            this.currentLevel.set_state(new NormalState());
+            this.bomb = bf.createBomb("Bomb2");
+            this.bombStatus = "Available";
+            this.currentLevel.increase_block_falling_speed();
+        }
+        else if(this.score >=100 && this.score < 200 && !(this.currentLevel.state instanceof HardState)){
+            this.currentLevel.set_state(new HardState());
+            this.bomb = bf.createBomb("Bomb3");
+            this.bombStatus = "Available";
+            this.currentLevel.increase_block_falling_speed();
+        }
+        else if(this.score >= 200 && !(this.currentLevel.state instanceof ExpertState)){
+            this.currentLevel.set_state(new ExpertState());
+            this.bomb = bf.createBomb("Bomb4");
+            this.bombStatus = "Available";
+            this.currentLevel.increase_block_falling_speed();
+        }
+    }
 
     /**
      * Start a new game
@@ -335,7 +383,7 @@ public class TetrisModel extends Observable implements Serializable {
 
     /**
      * Save the current state of the game to a file
-     * 
+     *
      * @param file pointer to file to write to
      */
     public void saveModel(File file) {
@@ -354,7 +402,14 @@ public class TetrisModel extends Observable implements Serializable {
     public boolean getAutoPilotMode() {
         return this.autoPilotMode;
     }
-}
 
+    /**
+     * Use the current bomb and increment the score
+     */
+    public void useBomb(){
+        this.board.clearRowsWithBomb(bomb);
+    }
+
+}
 
 

@@ -21,7 +21,7 @@ public class SimpleAudio implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         // if row filled
-        if (arg.equals(TetrisBoard.ROW_FILLED)) {
+        if (arg.equals(TetrisModel.ROW_FILLED)) {
           play("Assignment2//sounds//line_filled.wav");
 
           // piece placed
@@ -40,6 +40,10 @@ public class SimpleAudio implements Observer {
         // rotated block
         else if (arg.equals(TetrisView.ROTATED) && TetrisView.getVoiceEnabled()) {
             play("Assignment2//sounds//turning.wav");
+        }
+
+        else if (arg.equals(TetrisBoard.BOMB_USED)) {
+            play("Assignment2//sounds//bomb_clear.wav");
         }
 
         /*else if (arg.equals(TetrisModel.GAME_STARTED)) {

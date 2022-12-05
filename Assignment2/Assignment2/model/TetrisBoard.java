@@ -7,14 +7,15 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Observable;
 import sound_effects.SimpleAudio;
+import bombs.Bomb;
 
 /** Represents a Board class for Tetris.  
  * Based on the Tetris assignment in the Nifty Assignments Database, authored by Nick Parlante
  */
 public class TetrisBoard extends Observable implements Serializable{
-    public static final String ROW_FILLED = "ROW_FILLED";
     public static final String PIECE_PLACED = "PIECE_PLACED";
     public static final String PIECE_FALLING = "PIECE_FALLING";
+    public static final String BOMB_USED = "BOMB_USED";
     private int width; //board height and width
     private int height;
     protected boolean[][] tetrisGrid; //board grid
@@ -67,8 +68,8 @@ public class TetrisBoard extends Observable implements Serializable{
         for (int x = 0; x < tetrisGrid.length; x++) {
             for (int y = 0; y < tetrisGrid[x].length; y++) {
                 tetrisGrid[x][y] = false;
-                }
             }
+        }
         Arrays.fill(colCounts, 0);
         Arrays.fill(rowCounts, 0);
         committed = true;
@@ -169,8 +170,8 @@ public class TetrisBoard extends Observable implements Serializable{
     /**
      * Attempts to add the body of a piece to the board. Copies the piece blocks into the board grid.
      * Returns ADD_OK for a regular placement, or ADD_ROW_FILLED
-     * for a regular placement that causes at least one row to be filled. 
-     * 
+     * for a regular placement that causes at least one row to be filled.
+     *
      * Error cases:
      * A placement may fail in two ways. First, if part of the piece may fall out
      * of bounds of the board, ADD_OUT_BOUNDS is returned.
@@ -178,11 +179,11 @@ public class TetrisBoard extends Observable implements Serializable{
      * in which case ADD_BAD is returned.
      * In both error cases, the board may be left in an invalid
      * state. The client can use undo(), to recover the valid, pre-place state.
-     * 
+     *
      * @param piece piece to place
      * @param x placement position, x
      * @param y placement position, y
-     * 
+     *
      * @return static int that defines result of placement
      */
     public int placePiece(TetrisPiece piece, int x, int y) {
@@ -202,8 +203,6 @@ public class TetrisBoard extends Observable implements Serializable{
                 return ADD_ROW_FILLED;
             }
         }
-        setChanged();
-        notifyObservers(PIECE_FALLING);
         return ADD_OK;
     }
 
@@ -236,6 +235,7 @@ public class TetrisBoard extends Observable implements Serializable{
                 rows_cleared += 1;
                 for (int j = 0; j < this.width; j++) {
                     this.tetrisGrid[j][row] = false;
+                    this.backupGrid[j][row] = false;
                 }
                 row_index.add(row);
             }
@@ -244,6 +244,7 @@ public class TetrisBoard extends Observable implements Serializable{
         row_index.sort(Comparator.reverseOrder());
         for (int r: row_index) shiftDown(r);
 
+        this.makeHeightAndWidthArrays();
         return rows_cleared;
     }
 
@@ -257,13 +258,15 @@ public class TetrisBoard extends Observable implements Serializable{
         for (int j = row; j + 1 < this.height; j++) {
             for (int i = 0; i < this.width; i++) {
                 this.tetrisGrid[i][j] = this.tetrisGrid[i][j + 1];
+                this.backupGrid[i][j] = this.backupGrid[i][j+1];
             }
         }
         for (int w = 0; w < this.width; w++) {
             this.tetrisGrid[w][this.height - 1] = false;
+            this.backupGrid[w][this.height - 1] = false;
         }
-        setChanged();
-        notifyObservers(ROW_FILLED);
+       // setChanged();
+       // notifyObservers(ROW_FILLED);
     }
 
 
@@ -329,7 +332,7 @@ public class TetrisBoard extends Observable implements Serializable{
 
     /**
      * Print the board
-     * 
+     *
      * @return a string representation of the board (useful for debugging)
      */
     public String toString() {
@@ -346,7 +349,41 @@ public class TetrisBoard extends Observable implements Serializable{
         return(buff.toString());
     }
 
+    /**
+     * Method to use bomb which
+     * clears the bottom rows of the board based on the type of the bomb.
+     *
+     * Bomb1: clear the lowest row
+     * Bomb2: clear the lowest 2 rows
+     * Bomb3: clear the lowest 3 rows
+     * Bomb4: clear the lowest 4 rows
+     *
+     * @param bomb bomb.
+     */
+    public int clearRowsWithBomb(Bomb bomb){
+        this.committed = false;
+        this.makeHeightAndWidthArrays();
+        ArrayList<Integer> row_index = new ArrayList<Integer>();
+        int rows_cleared = 0;
+        for (int row = 0; row < bomb.numLines(); row++) {
+            rows_cleared += 1;
+            for (int j = 0; j < this.width; j++) {
+                this.tetrisGrid[j][row] = false;
+                this.backupGrid[j][row] = false;
+            }
+            row_index.add(row);
 
+        }
+        row_index.sort(Comparator.reverseOrder());
+        for (int r: row_index) {
+            setChanged();
+            notifyObservers(BOMB_USED);
+            shiftDown(r);
+        }
+
+        this.makeHeightAndWidthArrays();
+        return rows_cleared;
+    }
 }
 
 

@@ -1,6 +1,6 @@
 package views;
 
-import model.TetrisModel;
+import model.*;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -39,9 +39,11 @@ public class TetrisView extends Observable {
     TetrisModel model; //reference to model
     Stage stage;
 
-    Button startButton, stopButton, loadButton, saveButton, newButton, enableButton; //buttons for functions
+    Button startButton, stopButton, loadButton, saveButton, newButton, bombButton, enableButton; //buttons for functions
     Label scoreLabel = new Label("");
     Label gameModeLabel = new Label("");
+
+    Label levelLabel = new Label("");
 
     BorderPane borderPane;
     Canvas canvas;
@@ -90,6 +92,7 @@ public class TetrisView extends Observable {
         //labels
         gameModeLabel.setId("GameModeLabel");
         scoreLabel.setId("ScoreLabel");
+        levelLabel.setId("LevelLabel");
 
         gameModeLabel.setText("Player is: Human");
         gameModeLabel.setMinWidth(250);
@@ -114,6 +117,11 @@ public class TetrisView extends Observable {
         scoreLabel.setText("Score is: 0");
         scoreLabel.setFont(new Font(20));
         scoreLabel.setStyle("-fx-text-fill: #e8e6e3");
+
+        levelLabel.setText("Level is: Easy");
+        levelLabel.setFont(new Font(20));
+        levelLabel.setStyle("-fx-text-fill: #e8e6e3");
+
 
         //add buttons
         startButton = new Button("Start");
@@ -146,13 +154,20 @@ public class TetrisView extends Observable {
         newButton.setFont(new Font(12));
         newButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
 
+        bombButton = new Button(model.bomb.getType() + ": " + model.bombStatus);
+        bombButton.setId(model.bomb.getType());
+        bombButton.setPrefSize(150, 50);
+        bombButton.setFont(new Font(12));
+        bombButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
+
+        //HBox controls = new HBox(20, saveButton, loadButton, newButton, startButton, stopButton, bombButton);
         enableButton = new Button("Voice Aid");
         enableButton.setId("Voice Aid");
         enableButton.setPrefSize(150, 50);
         enableButton.setFont(new Font(12));
         enableButton.setStyle("-fx-background-color: #F28583; -fx-text-fill: white;");
 
-        HBox controls = new HBox(20, saveButton, loadButton, newButton, startButton, stopButton, enableButton);
+        HBox controls = new HBox(20, saveButton, loadButton, newButton, startButton, stopButton,bombButton, enableButton);
         controls.setPadding(new Insets(20, 20, 20, 20));
         controls.setAlignment(Pos.CENTER);
 
@@ -164,7 +179,7 @@ public class TetrisView extends Observable {
         vBox.setPadding(new Insets(20, 20, 20, 20));
         vBox.setAlignment(Pos.TOP_CENTER);
 
-        VBox scoreBox = new VBox(20, scoreLabel, gameModeLabel, pilotButtonHuman, pilotButtonComputer);
+        VBox scoreBox = new VBox(20, scoreLabel, gameModeLabel, levelLabel, pilotButtonHuman, pilotButtonComputer);
         scoreBox.setPadding(new Insets(20, 20, 20, 20));
         vBox.setAlignment(Pos.TOP_CENTER);
 
@@ -174,6 +189,22 @@ public class TetrisView extends Observable {
         timeline = new Timeline(new KeyFrame(Duration.seconds(0.25), e -> updateBoard()));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
+
+        bombButton.setOnAction(e -> {
+            if (model.bombStatus.equals("Available")){
+                boolean filled = true;
+                for (int row = 0; row < model.bomb.numLines(); row++){
+                    if (model.getBoard().getRowWidth(row) == 0){
+                        filled = false; break;
+                    }
+                }
+                if (filled){ // there must be at least one grid filled in the lowest row(s) to use the bomb
+                    this.model.useBomb();
+                    this.model.bombStatus = "N/A"; // if the bomb is used, it becomes unavailable in that level
+                    borderPane.requestFocus();
+                }
+            }
+        });
 
         //configure this such that you start a new game when the user hits the newButton
         //Make sure to return the focus to the borderPane once you're done!
@@ -221,11 +252,11 @@ public class TetrisView extends Observable {
         //configure this such that you adjust the speed of the timeline to a value that
         //ranges between 0 and 3 times the default rate per model tick.  Make sure to return the
         //focus to the borderPane once you're done!
-        slider.setOnMouseReleased(e -> {
-            double value = slider.getValue();
-            timeline.setRate(3 * value/100);
-            borderPane.requestFocus();
-        });
+//        slider.setOnMouseReleased(e -> {
+//            double value = slider.getValue();
+//            timeline.setRate(3 * value/100);
+//            borderPane.requestFocus();
+//        });
 
         //configure this such that you can use controls to rotate and place pieces as you like!!
         //You'll want to respond to tie key presses to these moves:
@@ -299,6 +330,8 @@ public class TetrisView extends Observable {
             paintBoard();
             this.model.modelTick(TetrisModel.MoveType.DOWN);
             updateScore();
+            updateLevel();
+            updateBombUI();
         }
     }
 
@@ -310,6 +343,33 @@ public class TetrisView extends Observable {
             scoreLabel.setText("Score is: " + model.getScore() + "\nPieces placed:" + model.getCount());
         }
     }
+
+    /**
+     * Update level on UI
+     */
+    private void updateLevel() {
+        String level_string_value = "Easy";
+        if(this.model.getCurrentLevel().state instanceof NormalState){
+            level_string_value = "Normal";
+        }
+        else if(this.model.getCurrentLevel().state instanceof HardState){
+            level_string_value = "Hard";
+        }
+        else if(this.model.getCurrentLevel().state instanceof ExpertState){
+            level_string_value = "Expert";
+        }
+        if (this.paused != true) {
+            levelLabel.setText("Level is: " + level_string_value);
+        }
+    }
+
+    /**
+     * Update bomb on UI
+     */
+    private void updateBombUI(){
+        bombButton.setText(model.bomb.getType() + ": "+ model.bombStatus);
+    }
+
 
     /**
      * Methods to calibrate sizes of pixels relative to board size
