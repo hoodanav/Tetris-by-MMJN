@@ -20,22 +20,9 @@ public class SimpleAudio implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        // if row filled
 
-        if (arg.equals(TetrisModel.ROW_FILLED) && TetrisView.getVoiceEnabled()) {
-            play("Assignment2//sounds//row_filled_a.wav");
-
-        }
-        else if (arg.equals(TetrisModel.ROW_FILLED)) {
-            play("Assignment2//sounds//line_filled.wav");
-
-         // piece placed
-        }
-        else if (arg.equals(TetrisModel.PIECE_PLACED)) {
-            play("Assignment2//sounds//piece_placed.wav");
-        }
         // moved block left
-        else if (arg.equals(TetrisView.LEFT_MOVE) && TetrisView.getVoiceEnabled()) {
+        if (arg.equals(TetrisView.LEFT_MOVE) && TetrisView.getVoiceEnabled()) {
             play("Assignment2//sounds//lefty.wav");
         }
         // moved block right
@@ -46,13 +33,16 @@ public class SimpleAudio implements Observer {
         else if (arg.equals(TetrisView.ROTATED) && TetrisView.getVoiceEnabled()) {
             play("Assignment2//sounds//turning.wav");
         }
+        // if row filled
+        else if (arg.equals(TetrisModel.ROW_FILLED) && TetrisView.getVoiceEnabled()) {
+            play("Assignment2//sounds//row_filled_a.wav");
+        }
         // bomb use voice aid
         else if (arg.equals(TetrisBoard.BOMB_USED) && TetrisView.getVoiceEnabled()) {
             play("Assignment2//sounds//bomb_clear_a.wav");
         }
-        // bomb use normal
-        else if (arg.equals(TetrisBoard.BOMB_USED)) {
-            play("Assignment2//sounds//bomb_clear.wav");
+        else if (arg.equals(TetrisView.FAST_DROP) && TetrisView.getVoiceEnabled()) {
+            play("Assignment2//sounds//drop.wav");
         }
         // level normal voice aid
         else if (arg.equals(TetrisModel.NORMAL_LEVEL) && TetrisView.getVoiceEnabled()) {
@@ -75,6 +65,18 @@ public class SimpleAudio implements Observer {
             play("Assignment2//sounds//level_up.wav");
         }
 
+        else if (arg.equals(TetrisModel.ROW_FILLED)) {
+            play("Assignment2//sounds//line_filled.wav");
+
+            // piece placed
+        }
+        else if (arg.equals(TetrisModel.PIECE_PLACED)) {
+            play("Assignment2//sounds//piece_placed.wav");
+        }
+        // bomb use normal
+        else if (arg.equals(TetrisBoard.BOMB_USED)) {
+            play("Assignment2//sounds//bomb_clear.wav");
+        }
 
     }
 
