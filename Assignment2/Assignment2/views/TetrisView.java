@@ -36,6 +36,7 @@ public class TetrisView extends Observable {
     public static final String LEFT_MOVE = "LEFT_MOVE";
     public static final String RIGHT_MOVE = "RIGHT_MOVE";
     public static final String ROTATED = "ROTATED";
+    public static final String FAST_DROP = "FAST_DROP";
     TetrisModel model; //reference to model
     Stage stage;
 
@@ -273,6 +274,8 @@ public class TetrisView extends Observable {
                         model.modelTick(TetrisModel.MoveType.ROTATE);
                     }
                     case 83 -> { //down
+                        setChanged();
+                        notifyObservers(FAST_DROP);
                         model.modelTick(TetrisModel.MoveType.DROP);
                     }
                     case 65 -> { //left

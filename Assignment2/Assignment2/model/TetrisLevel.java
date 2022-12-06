@@ -5,6 +5,7 @@ public class TetrisLevel {
 
     public TetrisLevel(){
         this.state = new EasyState();
+
     }
     public void set_state(TetrisState state){
         this.state = state;
