@@ -78,7 +78,7 @@ public class LoadView {
         selectBoardLabel.setStyle("-fx-text-fill: #e8e6e3");
         selectBoardLabel.setFont(new Font(16));
 
-        selectBoardButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
+        selectBoardButton.setStyle("-fx-background-color: #502F4C; -fx-text-fill: white;");
         selectBoardButton.setPrefSize(200, 50);
         selectBoardButton.setFont(new Font(16));
 
