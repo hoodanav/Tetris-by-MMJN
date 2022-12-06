@@ -11,7 +11,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -20,7 +19,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import model.TetrisPiece;
 import sound_effects.SimpleAudio;
 
 import java.util.Observable;
@@ -451,5 +449,13 @@ public class TetrisView extends Observable {
         return voiceEnabled;
     }
 
+   /* private String voiceAidStatus() {
+        if (voiceEnabled) {
+            return "T";
+        }
+        else {
+            return "F";
+        }
+    }*/
 
 }

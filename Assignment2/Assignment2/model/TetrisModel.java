@@ -20,6 +20,10 @@ public class TetrisModel extends Observable implements Serializable {
     public static final String PIECE_PLACED = "PIECE_PLACED";
     public static final String GAME_STARTED = "GAME_STARTED";
     public static final String ROW_FILLED = "ROW_FILLED";
+    public static final String NORMAL_LEVEL = "NORMAL_LEVEL";
+    public static final String EASY_LEVEL = "EASY_LEVEL";
+    public static final String HARD_LEVEL = "HARD_LEVEL";
+    public static final String EXPERT_LEVEL = "EXPERT_LEVEL";
 
     protected TetrisBoard board;  // Board data structure
     protected TetrisPiece[] pieces; // Pieces to be places on the board
@@ -61,6 +65,8 @@ public class TetrisModel extends Observable implements Serializable {
         gameOn = false;
         pilot = new AutoPilot();
         currentLevel = new TetrisLevel();
+        setChanged();
+        notifyObservers(EASY_LEVEL);
         BombFactory bf = new BombFactory();
         bomb = bf.createBomb("Bomb1");
         addObserver(new SimpleAudio());
@@ -355,18 +361,24 @@ public class TetrisModel extends Observable implements Serializable {
         BombFactory bf = new BombFactory();
         if(this.score >=50 && this.score <100 && !(this.currentLevel.state instanceof NormalState)){
             this.currentLevel.set_state(new NormalState());
+            setChanged();
+            notifyObservers(NORMAL_LEVEL);
             this.bomb = bf.createBomb("Bomb2");
             this.bombStatus = "Available";
             this.currentLevel.increase_block_falling_speed();
         }
         else if(this.score >=100 && this.score < 200 && !(this.currentLevel.state instanceof HardState)){
             this.currentLevel.set_state(new HardState());
+            setChanged();
+            notifyObservers(HARD_LEVEL);
             this.bomb = bf.createBomb("Bomb3");
             this.bombStatus = "Available";
             this.currentLevel.increase_block_falling_speed();
         }
         else if(this.score >= 200 && !(this.currentLevel.state instanceof ExpertState)){
             this.currentLevel.set_state(new ExpertState());
+            setChanged();
+            notifyObservers(EXPERT_LEVEL);
             this.bomb = bf.createBomb("Bomb4");
             this.bombStatus = "Available";
             this.currentLevel.increase_block_falling_speed();
