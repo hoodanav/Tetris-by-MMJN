@@ -64,7 +64,7 @@ public class SaveView {
 
         saveBoardButton = new Button("Save board");
         saveBoardButton.setId("SaveBoard"); // DO NOT MODIFY ID
-        saveBoardButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
+        saveBoardButton.setStyle("-fx-background-color: #977390; -fx-text-fill: white;");
         saveBoardButton.setPrefSize(200, 50);
         saveBoardButton.setFont(new Font(16));
         saveBoardButton.setOnAction(e -> saveBoard());
