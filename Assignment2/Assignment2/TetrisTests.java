@@ -197,6 +197,7 @@ public class TetrisTests {
         as.play("Assignment2//sounds//right.wav");
         //as.playSound1("line_filled.wav");
     }
+
     @Test
     void testIncreaseScoreFormula(){
         TetrisLevel level = new TetrisLevel();
@@ -213,5 +214,17 @@ public class TetrisTests {
         assertEquals(level.state.score_formula.get(3), 25);
         assertEquals(level.state.score_formula.get(4), 45);
         assertEquals(level.state.score_formula.get(0), 55);
+     }
+        
+    @Test
+    void timerTestChange() {
+        TetrisTimer timer = new TetrisTimer();
+        TetrisSpeedModifier invoker = new TetrisSpeedModifier(new TetrisCommandIncrease(timer));
+        TetrisSpeedModifier invoker2 = new TetrisSpeedModifier(new TetrisCommandDecrease(timer));
+        assertEquals(timer.currPercent(), 0.4);
+        invoker.changeTime();
+        assertEquals(timer.currPercent(), 0.5);
+        invoker2.changeTime();
+        assertEquals(timer.currPercent(), 0.4);
     }
 }

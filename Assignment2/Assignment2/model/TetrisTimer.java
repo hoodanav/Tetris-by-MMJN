@@ -1,9 +1,11 @@
 package model;
 
+import java.io.Serializable;
+
 /**
  * Represents a Tetris Timer for Tetris.
  */
-public class TetrisTimer {
+public class TetrisTimer implements Serializable {
 
     private double time;
     private double percent;

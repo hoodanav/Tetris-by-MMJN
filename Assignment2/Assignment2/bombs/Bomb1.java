@@ -1,9 +1,11 @@
 package bombs;
 
+import java.io.Serializable;
+
 /**
  * Bomb1 class
  */
-public class Bomb1 implements Bomb {
+public class Bomb1 implements Bomb, Serializable {
 
     /**
      * get type of bomb
