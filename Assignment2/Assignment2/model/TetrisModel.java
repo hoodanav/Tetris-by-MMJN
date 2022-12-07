@@ -21,7 +21,6 @@ public class TetrisModel extends Observable implements Serializable {
     public static final String GAME_STARTED = "GAME_STARTED";
     public static final String ROW_FILLED = "ROW_FILLED";
     public static final String NORMAL_LEVEL = "NORMAL_LEVEL";
-    public static final String EASY_LEVEL = "EASY_LEVEL";
     public static final String HARD_LEVEL = "HARD_LEVEL";
     public static final String EXPERT_LEVEL = "EXPERT_LEVEL";
 
@@ -65,8 +64,6 @@ public class TetrisModel extends Observable implements Serializable {
         gameOn = false;
         pilot = new AutoPilot();
         currentLevel = new TetrisLevel();
-        setChanged();
-        notifyObservers(EASY_LEVEL);
         BombFactory bf = new BombFactory();
         bomb = bf.createBomb("Bomb1");
         addObserver(new SimpleAudio());
