@@ -1,5 +1,4 @@
-import model.TetrisPiece;
-import model.TetrisBoard;
+import model.*;
 import bombs.Bomb;
 import bombs.BombFactory;
 
@@ -197,5 +196,17 @@ public class TetrisTests {
         SimpleAudio as = new SimpleAudio();
         as.play("Assignment2//sounds//right.wav");
         //as.playSound1("line_filled.wav");
+    }
+
+    @Test
+    void timerTestChange() {
+        TetrisTimer timer = new TetrisTimer();
+        TetrisSpeedModifier invoker = new TetrisSpeedModifier(new TetrisCommandIncrease(timer));
+        TetrisSpeedModifier invoker2 = new TetrisSpeedModifier(new TetrisCommandDecrease(timer));
+        assertEquals(timer.currPercent(), 0.4);
+        invoker.changeTime();
+        assertEquals(timer.currPercent(), 0.5);
+        invoker2.changeTime();
+        assertEquals(timer.currPercent(), 0.4);
     }
 }
