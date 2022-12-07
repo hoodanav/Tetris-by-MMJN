@@ -199,6 +199,24 @@ public class TetrisTests {
     }
 
     @Test
+    void testIncreaseScoreFormula(){
+        TetrisLevel level = new TetrisLevel();
+        level.set_state(new EasyState());
+        level.increase_scoring_formula();
+        assertEquals(level.state.score_formula.get(1), 5);
+        assertEquals(level.state.score_formula.get(2), 10);
+        assertEquals(level.state.score_formula.get(3), 20);
+        assertEquals(level.state.score_formula.get(4), 40);
+        assertEquals(level.state.score_formula.get(0), 50);
+        level.set_state(new NormalState());
+        assertEquals(level.state.score_formula.get(1), 10);
+        assertEquals(level.state.score_formula.get(2), 15);
+        assertEquals(level.state.score_formula.get(3), 25);
+        assertEquals(level.state.score_formula.get(4), 45);
+        assertEquals(level.state.score_formula.get(0), 55);
+     }
+        
+    @Test
     void timerTestChange() {
         TetrisTimer timer = new TetrisTimer();
         TetrisSpeedModifier invoker = new TetrisSpeedModifier(new TetrisCommandIncrease(timer));
