@@ -213,6 +213,8 @@ public class TetrisView extends Observable {
         //Make sure to return the focus to the borderPane once you're done!
         newButton.setOnAction(e -> {
             this.model.newGame();
+            TetrisState.timer = new TetrisTimer();
+            this.timeline.setRate(TetrisState.timer.currTime());
             borderPane.requestFocus();
         });
 
