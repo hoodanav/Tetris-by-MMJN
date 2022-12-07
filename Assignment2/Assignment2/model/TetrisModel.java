@@ -1,16 +1,29 @@
 package model;
 
+import sound_effects.SimpleAudio;
+
+import java.util.Observable;
+
 import java.io.*;
 import java.util.Random;
+import bombs.Bomb;
+import bombs.BombFactory;
 
 /** Represents a Tetris Model for Tetris.
  * Based on the Tetris assignment in the Nifty Assignments Database, authored by Nick Parlante
  */
-public class TetrisModel implements Serializable {
+public class TetrisModel extends Observable implements Serializable {
 
     public static final int WIDTH = 10; //size of the board in blocks
     public static final int HEIGHT = 20; //height of the board in blocks
     public static final int BUFFERZONE = 4; //space at the top
+    public static final String PIECE_PLACED = "PIECE_PLACED";
+    public static final String GAME_STARTED = "GAME_STARTED";
+    public static final String ROW_FILLED = "ROW_FILLED";
+    public static final String NORMAL_LEVEL = "NORMAL_LEVEL";
+    public static final String EASY_LEVEL = "EASY_LEVEL";
+    public static final String HARD_LEVEL = "HARD_LEVEL";
+    public static final String EXPERT_LEVEL = "EXPERT_LEVEL";
 
     protected TetrisBoard board;  // Board data structure
     protected TetrisPiece[] pieces; // Pieces to be places on the board
@@ -31,6 +44,9 @@ public class TetrisModel implements Serializable {
     private boolean autoPilotMode; //are we in autopilot mode?
     protected TetrisPilot pilot;
 
+    public Bomb bomb;
+    public String bombStatus;
+
     public enum MoveType {
         ROTATE,
         LEFT,
@@ -49,6 +65,11 @@ public class TetrisModel implements Serializable {
         gameOn = false;
         pilot = new AutoPilot();
         currentLevel = new TetrisLevel();
+        setChanged();
+        notifyObservers(EASY_LEVEL);
+        BombFactory bf = new BombFactory();
+        bomb = bf.createBomb("Bomb1");
+        addObserver(new SimpleAudio());
     }
 
 
@@ -56,12 +77,17 @@ public class TetrisModel implements Serializable {
      * Start new game
      */
     public void startGame() { //start game
+        //setChanged();
+        //notifyObservers("GAME_STARTED");
         random = new Random();
         addNewPiece();
         gameOn = true;
         score = 0;
         count = 0;
         currentLevel = new TetrisLevel();
+        BombFactory bf = new BombFactory();
+        bomb = bf.createBomb("Bomb1");
+        bombStatus = "Available";
     }
 
     /**
@@ -168,7 +194,17 @@ public class TetrisModel implements Serializable {
             this.currentPiece = piece;
             this.currentX = x;
             this.currentY = y;
+            if (result == TetrisBoard.ADD_ROW_FILLED) {
+                setChanged();
+                notifyObservers(ROW_FILLED);
+            }
+
         } else {
+            // check for piece is resting at y = 0 and/or another piece.
+            if(result != TetrisBoard.ADD_OUT_BOUNDS || (result == TetrisBoard.ADD_OUT_BOUNDS && y < 0)) {
+                setChanged();
+                notifyObservers(PIECE_PLACED);
+            }
             board.undo();
         }
 
@@ -322,16 +358,29 @@ public class TetrisModel implements Serializable {
      * Set new level based on the total score
      */
     public void setLevel(){
+        BombFactory bf = new BombFactory();
         if(this.score >=50 && this.score <100 && !(this.currentLevel.state instanceof NormalState)){
             this.currentLevel.set_state(new NormalState());
+            setChanged();
+            notifyObservers(NORMAL_LEVEL);
+            this.bomb = bf.createBomb("Bomb2");
+            this.bombStatus = "Available";
             this.currentLevel.increase_block_falling_speed();
         }
         else if(this.score >=100 && this.score < 200 && !(this.currentLevel.state instanceof HardState)){
             this.currentLevel.set_state(new HardState());
+            setChanged();
+            notifyObservers(HARD_LEVEL);
+            this.bomb = bf.createBomb("Bomb3");
+            this.bombStatus = "Available";
             this.currentLevel.increase_block_falling_speed();
         }
         else if(this.score >= 200 && !(this.currentLevel.state instanceof ExpertState)){
             this.currentLevel.set_state(new ExpertState());
+            setChanged();
+            notifyObservers(EXPERT_LEVEL);
+            this.bomb = bf.createBomb("Bomb4");
+            this.bombStatus = "Available";
             this.currentLevel.increase_block_falling_speed();
         }
     }
@@ -365,6 +414,14 @@ public class TetrisModel implements Serializable {
     public boolean getAutoPilotMode() {
         return this.autoPilotMode;
     }
+
+    /**
+     * Use the current bomb and increment the score
+     */
+    public void useBomb(){
+        this.board.clearRowsWithBomb(bomb);
+    }
+
 }
 
 

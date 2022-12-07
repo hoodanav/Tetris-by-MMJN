@@ -1,7 +1,10 @@
 import model.TetrisPiece;
 import model.TetrisBoard;
+import bombs.Bomb;
+import bombs.BombFactory;
 
 import org.junit.jupiter.api.Test;
+import sound_effects.SimpleAudio;
 
 import java.util.Arrays;
 
@@ -171,5 +174,28 @@ public class TetrisTests {
 
         int rcleared = board.clearRows();
         assertEquals(2, rcleared);
+    }
+    
+    @Test
+    void testClearRowsWithBomb() {
+        TetrisBoard board = new TetrisBoard(10,24); board.commit();
+        TetrisPiece pieceA = new TetrisPiece(TetrisPiece.SQUARE_STR);
+
+        //fill two rows completely
+        int retval = board.placePiece(pieceA, 0,0); board.commit();
+        retval = board.placePiece(pieceA, 2,0); board.commit();
+        retval = board.placePiece(pieceA, 8,0);
+
+        BombFactory bf = new BombFactory();
+        Bomb bomb2 = bf.createBomb("Bomb2");
+        int rcleared = board.clearRowsWithBomb(bomb2);
+        assertEquals(2, rcleared);
+    }
+
+    @Test
+    void testLineFillSound() {
+        SimpleAudio as = new SimpleAudio();
+        as.play("Assignment2//sounds//right.wav");
+        //as.playSound1("line_filled.wav");
     }
 }

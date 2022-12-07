@@ -20,6 +20,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import model.TetrisPiece;
+import sound_effects.SimpleAudio;
+
+import java.util.Observable;
 
 
 /**
@@ -27,12 +31,16 @@ import javafx.util.Duration;
  *
  * Based on the Tetris assignment in the Nifty Assignments Database, authored by Nick Parlante
  */
-public class TetrisView {
+public class TetrisView extends Observable {
 
+    public static final String LEFT_MOVE = "LEFT_MOVE";
+    public static final String RIGHT_MOVE = "RIGHT_MOVE";
+    public static final String ROTATED = "ROTATED";
+    public static final String FAST_DROP = "FAST_DROP";
     TetrisModel model; //reference to model
     Stage stage;
 
-    Button startButton, stopButton, loadButton, saveButton, newButton; //buttons for functions
+    Button startButton, stopButton, loadButton, saveButton, newButton, bombButton, enableButton, timeButton; //buttons for functions
     Label scoreLabel = new Label("");
     Label gameModeLabel = new Label("");
 
@@ -44,6 +52,8 @@ public class TetrisView {
 
     Boolean paused;
     Timeline timeline;
+
+    private static boolean voiceEnabled;
 
     int pieceWidth = 20; //width of block on display
     private double width; //height and width of canvas
@@ -60,6 +70,7 @@ public class TetrisView {
         this.model = model;
         this.stage = stage;
         initUI();
+        addObserver(new SimpleAudio());
     }
 
     /**
@@ -112,52 +123,67 @@ public class TetrisView {
         levelLabel.setFont(new Font(20));
         levelLabel.setStyle("-fx-text-fill: #e8e6e3");
 
+
         //add buttons
         startButton = new Button("Start");
         startButton.setId("Start");
         startButton.setPrefSize(150, 50);
         startButton.setFont(new Font(12));
-        startButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
+        startButton.setStyle("-fx-background-color: #CC8B8C; -fx-text-fill: white;");
 
         stopButton = new Button("Stop");
         stopButton.setId("Start");
         stopButton.setPrefSize(150, 50);
         stopButton.setFont(new Font(12));
-        stopButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
+        stopButton.setStyle("-fx-background-color: #C68866; -fx-text-fill: white;");
 
         saveButton = new Button("Save");
         saveButton.setId("Save");
         saveButton.setPrefSize(150, 50);
         saveButton.setFont(new Font(12));
-        saveButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
+        saveButton.setStyle("-fx-background-color: #7F7EFF; -fx-text-fill: white;");
 
         loadButton = new Button("Load");
         loadButton.setId("Load");
         loadButton.setPrefSize(150, 50);
         loadButton.setFont(new Font(12));
-        loadButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
+        loadButton.setStyle("-fx-background-color: #A390E4; -fx-text-fill: white;");
 
         newButton = new Button("New Game");
         newButton.setId("New");
         newButton.setPrefSize(150, 50);
         newButton.setFont(new Font(12));
-        newButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
+        newButton.setStyle("-fx-background-color: #B581C5; -fx-text-fill: white;");
 
-        HBox controls = new HBox(20, saveButton, loadButton, newButton, startButton, stopButton);
+        bombButton = new Button(model.bomb.getType() + ": " + model.bombStatus);
+        bombButton.setId(model.bomb.getType());
+        bombButton.setPrefSize(150, 50);
+        bombButton.setFont(new Font(12));
+        bombButton.setStyle("-fx-background-color: #A565B8; -fx-text-fill: white;");
+
+        //HBox controls = new HBox(20, saveButton, loadButton, newButton, startButton, stopButton, bombButton);
+        enableButton = new Button("Voice Aid");
+        enableButton.setId("Voice Aid");
+        enableButton.setPrefSize(150, 50);
+        enableButton.setFont(new Font(12));
+        enableButton.setStyle("-fx-background-color: #F28583; -fx-text-fill: white;");
+
+        timeButton = new Button("Speed Settings");
+        timeButton.setId("Speed Settings");
+        timeButton.setPrefSize(150, 50);
+        timeButton.setFont(new Font(12));
+        timeButton.setStyle("-fx-background-color: #1FBFFF; -fx-text-fill: white;");
+
+        HBox controls = new HBox(20, saveButton, loadButton, newButton, enableButton, timeButton);
         controls.setPadding(new Insets(20, 20, 20, 20));
         controls.setAlignment(Pos.CENTER);
 
-        Slider slider = new Slider(0, 100, 50);
-        slider.setShowTickLabels(true);
-        slider.setStyle("-fx-control-inner-background: palegreen;");
-
-        VBox vBox = new VBox(20, slider);
-        vBox.setPadding(new Insets(20, 20, 20, 20));
-        vBox.setAlignment(Pos.TOP_CENTER);
+        HBox options = new HBox(20, startButton, stopButton, bombButton);
+        options.setPadding(new Insets(20, 20, 20, 20));
+        options.setAlignment(Pos.CENTER);
 
         VBox scoreBox = new VBox(20, scoreLabel, gameModeLabel, levelLabel, pilotButtonHuman, pilotButtonComputer);
         scoreBox.setPadding(new Insets(20, 20, 20, 20));
-        vBox.setAlignment(Pos.TOP_CENTER);
 
         toggleGroup.selectedToggleProperty().addListener((observable, oldVal, newVal) -> swapPilot(newVal));
 
@@ -165,6 +191,23 @@ public class TetrisView {
         timeline = new Timeline(new KeyFrame(Duration.seconds(0.25), e -> updateBoard()));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
+        timeline.setRate(TetrisState.timer.currTime());
+
+        bombButton.setOnAction(e -> {
+            if (model.bombStatus.equals("Available")){
+                boolean filled = true;
+                for (int row = 0; row < model.bomb.numLines(); row++){
+                    if (model.getBoard().getRowWidth(row) == 0){
+                        filled = false; break;
+                    }
+                }
+                if (filled){ // there must be at least one grid filled in the lowest row(s) to use the bomb
+                    this.model.useBomb();
+                    this.model.bombStatus = "N/A"; // if the bomb is used, it becomes unavailable in that level
+                    borderPane.requestFocus();
+                }
+            }
+        });
 
         //configure this such that you start a new game when the user hits the newButton
         //Make sure to return the focus to the borderPane once you're done!
@@ -204,14 +247,17 @@ public class TetrisView {
             borderPane.requestFocus();
         });
 
-        //configure this such that you adjust the speed of the timeline to a value that
-        //ranges between 0 and 3 times the default rate per model tick.  Make sure to return the
-        //focus to the borderPane once you're done!
-//        slider.setOnMouseReleased(e -> {
-//            double value = slider.getValue();
-//            timeline.setRate(3 * value/100);
-//            borderPane.requestFocus();
-//        });
+        //configure this such that the load view pops up when the loadButton is pressed.
+        //Make sure to return the focus to the borderPane once you're done!
+        enableButton.setOnAction(e -> {
+            this.setVoiceEnabled();
+            borderPane.requestFocus();
+        });
+
+        timeButton.setOnAction(e -> {
+            this.createTimeView();
+            borderPane.requestFocus();
+        });
 
         //configure this such that you can use controls to rotate and place pieces as you like!!
         //You'll want to respond to tie key presses to these moves:
@@ -226,15 +272,23 @@ public class TetrisView {
                 int code = k.getCode().getCode();
                 switch (code) {
                     case 87 -> { //up
+                        setChanged();
+                        notifyObservers(ROTATED);
                         model.modelTick(TetrisModel.MoveType.ROTATE);
                     }
                     case 83 -> { //down
+                        setChanged();
+                        notifyObservers(FAST_DROP);
                         model.modelTick(TetrisModel.MoveType.DROP);
                     }
                     case 65 -> { //left
+                        setChanged();
+                        notifyObservers(LEFT_MOVE);
                         model.modelTick(TetrisModel.MoveType.LEFT);
                     }
                     case 68 -> { //right
+                        setChanged();
+                        notifyObservers(RIGHT_MOVE);
                         model.modelTick(TetrisModel.MoveType.RIGHT);
                     }
                     default -> {
@@ -244,9 +298,9 @@ public class TetrisView {
         });
 
         borderPane.setTop(controls);
+        borderPane.setBottom(options);
         borderPane.setRight(scoreBox);
         borderPane.setCenter(canvas);
-        borderPane.setBottom(vBox);
 
         var scene = new Scene(borderPane, 800, 800);
         this.stage.setScene(scene);
@@ -280,6 +334,7 @@ public class TetrisView {
             this.model.modelTick(TetrisModel.MoveType.DOWN);
             updateScore();
             updateLevel();
+            updateBombUI();
         }
     }
 
@@ -288,9 +343,10 @@ public class TetrisView {
      */
     private void updateScore() {
         if (this.paused != true) {
-            scoreLabel.setText("Score is: " + model.getScore() + "\nPieces placed:" + model.getCount());
+            scoreLabel.setText("Score is: " + model.getScore() + "\nPieces placed: " + model.getCount());
         }
     }
+
     /**
      * Update level on UI
      */
@@ -298,17 +354,28 @@ public class TetrisView {
         String level_string_value = "Easy";
         if(this.model.getCurrentLevel().state instanceof NormalState){
             level_string_value = "Normal";
+            this.timeline.setRate(TetrisState.timer.currTime());
         }
         else if(this.model.getCurrentLevel().state instanceof HardState){
             level_string_value = "Hard";
+            this.timeline.setRate(TetrisState.timer.currTime());
         }
         else if(this.model.getCurrentLevel().state instanceof ExpertState){
             level_string_value = "Expert";
+            this.timeline.setRate(TetrisState.timer.currTime());
         }
         if (this.paused != true) {
             levelLabel.setText("Level is: " + level_string_value);
         }
     }
+
+    /**
+     * Update bomb on UI
+     */
+    private void updateBombUI(){
+        bombButton.setText(model.bomb.getType() + ": "+ model.bombStatus);
+    }
+
 
     /**
      * Methods to calibrate sizes of pixels relative to board size
@@ -332,8 +399,8 @@ public class TetrisView {
     public void paintBoard() {
 
         // Draw a rectangle around the whole screen
-        gc.setStroke(Color.GREEN);
-        gc.setFill(Color.GREEN);
+        gc.setStroke(Color.LIGHTSTEELBLUE);
+        gc.setFill(Color.LIGHTSTEELBLUE);
         gc.fillRect(0, 0, this.width-1, this.height-1);
 
         // Draw the line separating the top area on the screen
@@ -354,14 +421,15 @@ public class TetrisView {
             final int yHeight = this.model.getBoard().getColumnHeight(x);
             for (y=0; y<yHeight; y++) {
                 if (this.model.getBoard().getGrid(x, y)) {
-                    gc.setFill(Color.RED);
+                    gc.setFill(Color.MEDIUMVIOLETRED);
                     gc.fillRect(left+1, yPixel(y)+1, dx, dy);
-                    gc.setFill(Color.GREEN);
+                    gc.setFill(Color.LIGHTSTEELBLUE);
                 }
             }
         }
 
     }
+
 
     /**
      * Create the view to save a board to a file
@@ -377,5 +445,24 @@ public class TetrisView {
         LoadView loadView = new LoadView(this);
     }
 
+    /**
+     * Create the view to change the speed
+     */
+    private void createTimeView() {
+        TimeView timeView = new TimeView(this);
+    }
 
+
+    private void setVoiceEnabled() {
+        if (voiceEnabled) {
+            voiceEnabled = false;
+        }
+        else {
+            voiceEnabled = true;
+        }
+    }
+
+    public static boolean getVoiceEnabled() {
+        return voiceEnabled;
+    }
 }
