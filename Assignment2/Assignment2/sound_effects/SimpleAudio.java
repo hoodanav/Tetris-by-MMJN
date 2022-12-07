@@ -48,10 +48,7 @@ public class SimpleAudio implements Observer {
         else if (arg.equals(TetrisModel.NORMAL_LEVEL) && TetrisView.getVoiceEnabled()) {
             play("Assignment2//sounds//normal.wav");
         }
-        // level easy voice aid
-        else if (arg.equals(TetrisModel.EASY_LEVEL) && TetrisView.getVoiceEnabled()) {
-            play("Assignment2//sounds//.wav");
-        }
+
         // level hard voice aid
         else if (arg.equals(TetrisModel.HARD_LEVEL) && TetrisView.getVoiceEnabled()) {
             play("Assignment2//sounds//hard.wav");
@@ -61,7 +58,7 @@ public class SimpleAudio implements Observer {
             play("Assignment2//sounds//expert.wav");
         }
         // level up general sound
-        else if (arg.equals(TetrisModel.EASY_LEVEL) || arg.equals(TetrisModel.NORMAL_LEVEL) || arg.equals(TetrisModel.HARD_LEVEL) || arg.equals(TetrisModel.EXPERT_LEVEL)) {
+        else if (arg.equals(TetrisModel.NORMAL_LEVEL) || arg.equals(TetrisModel.HARD_LEVEL) || arg.equals(TetrisModel.EXPERT_LEVEL)) {
             play("Assignment2//sounds//level_up.wav");
         }
 
