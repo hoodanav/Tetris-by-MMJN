@@ -1,8 +1,9 @@
 package model;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public abstract class TetrisState {
+public abstract class TetrisState implements Serializable {
     /**
      * An abstract class representing a TetrisState.
      */

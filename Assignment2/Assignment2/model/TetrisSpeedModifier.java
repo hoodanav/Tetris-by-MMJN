@@ -1,10 +1,12 @@
 package model;
 
+import java.io.Serializable;
+
 /**
  * Executes the given command and modifies the TetrisTimer speed
  * as required.
  */
-public class TetrisSpeedModifier {
+public class TetrisSpeedModifier implements Serializable {
 
     private final TetrisCommand command;
 

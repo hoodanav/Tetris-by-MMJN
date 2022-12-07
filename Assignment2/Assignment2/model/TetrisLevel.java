@@ -1,6 +1,8 @@
 package model;
 
-public class TetrisLevel {
+import java.io.Serializable;
+
+public class TetrisLevel implements Serializable {
     public TetrisState state;
 
     public TetrisLevel(){

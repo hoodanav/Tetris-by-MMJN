@@ -1,9 +1,11 @@
 package model;
 
+import java.io.Serializable;
+
 /**
  * Decreases the Timer time by 10% given a TetrisTimer object.
  */
-public class TetrisCommandDecrease implements TetrisCommand{
+public class TetrisCommandDecrease implements TetrisCommand, Serializable {
     private final TetrisTimer timer;
 
     /**
