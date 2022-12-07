@@ -13,7 +13,7 @@ public class TetrisTimer {
      * Constructor for Tetris Timer
      */
     public TetrisTimer() {
-        this.percent = 0.2;
+        this.percent = 0.4;
         this.time = timeDefault * percent;
     }
 
