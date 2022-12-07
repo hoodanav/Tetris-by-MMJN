@@ -191,6 +191,7 @@ public class TetrisView extends Observable {
         timeline = new Timeline(new KeyFrame(Duration.seconds(0.25), e -> updateBoard()));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
+        timeline.setRate(TetrisState.timer.currTime());
 
         bombButton.setOnAction(e -> {
             if (model.bombStatus.equals("Available")){
