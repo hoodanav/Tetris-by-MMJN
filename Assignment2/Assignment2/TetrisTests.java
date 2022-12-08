@@ -1,7 +1,9 @@
-import model.TetrisPiece;
-import model.TetrisBoard;
+import model.*;
+import bombs.Bomb;
+import bombs.BombFactory;
 
 import org.junit.jupiter.api.Test;
+import sound_effects.SimpleAudio;
 
 import java.util.Arrays;
 
@@ -171,5 +173,58 @@ public class TetrisTests {
 
         int rcleared = board.clearRows();
         assertEquals(2, rcleared);
+    }
+    
+    @Test
+    void testClearRowsWithBomb() {
+        TetrisBoard board = new TetrisBoard(10,24); board.commit();
+        TetrisPiece pieceA = new TetrisPiece(TetrisPiece.SQUARE_STR);
+
+        //fill two rows completely
+        int retval = board.placePiece(pieceA, 0,0); board.commit();
+        retval = board.placePiece(pieceA, 2,0); board.commit();
+        retval = board.placePiece(pieceA, 8,0);
+
+        BombFactory bf = new BombFactory();
+        Bomb bomb2 = bf.createBomb("Bomb2");
+        int rcleared = board.clearRowsWithBomb(bomb2);
+        assertEquals(2, rcleared);
+    }
+
+    @Test
+    void testLineFillSound() {
+        SimpleAudio as = new SimpleAudio();
+        as.play("Assignment2//sounds//right.wav");
+        //as.playSound1("line_filled.wav");
+    }
+
+    @Test
+    void testIncreaseScoreFormula(){
+        TetrisLevel level = new TetrisLevel();
+        level.set_state(new EasyState());
+        level.increase_scoring_formula();
+        assertEquals(level.state.score_formula.get(1), 5);
+        assertEquals(level.state.score_formula.get(2), 10);
+        assertEquals(level.state.score_formula.get(3), 20);
+        assertEquals(level.state.score_formula.get(4), 40);
+        assertEquals(level.state.score_formula.get(0), 50);
+        level.set_state(new NormalState());
+        assertEquals(level.state.score_formula.get(1), 10);
+        assertEquals(level.state.score_formula.get(2), 15);
+        assertEquals(level.state.score_formula.get(3), 25);
+        assertEquals(level.state.score_formula.get(4), 45);
+        assertEquals(level.state.score_formula.get(0), 55);
+     }
+        
+    @Test
+    void timerTestChange() {
+        TetrisTimer timer = new TetrisTimer();
+        TetrisSpeedModifier invoker = new TetrisSpeedModifier(new TetrisCommandIncrease(timer));
+        TetrisSpeedModifier invoker2 = new TetrisSpeedModifier(new TetrisCommandDecrease(timer));
+        assertEquals(timer.currPercent(), 0.4);
+        invoker.changeTime();
+        assertEquals(timer.currPercent(), 0.5);
+        invoker2.changeTime();
+        assertEquals(timer.currPercent(), 0.4);
     }
 }
