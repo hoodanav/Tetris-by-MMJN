@@ -19,3 +19,8 @@ A classic game of falling blocks, now with added accessibility features and soun
 - Move and rotate the falling blocks to clear rows and score points
 - Use bomb objects to blast away stubborn blocks
 - The game ends when the blocks reach the top of the playing field
+
+
+
+https://user-images.githubusercontent.com/87709055/217431313-bc24f878-ae6e-4342-ae10-78e5ff4a7285.mp4
+
